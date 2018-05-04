@@ -1,27 +1,38 @@
-process.env.NODE_ENV = 'production'
-process.env.BABEL_ENV = 'production'
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const webpack = require("webpack");
 
 module.exports = {
   output: {
-    filename: 'app.[contenthash:8].js',
-    chunkFilename: '[name].[contenthash:8].chunk.js',
+    filename: "app.js",
+    chunkFilename: "[name].[contenthash:8].chunk.js"
   },
-  mode: 'production',
-  optimization: {
-    splitChunks: {
-      chunks: 'all',
-      name: 'vendors',
-    },
-  },
+  stats: "verbose",
+  mode: "production",
+  plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1
+    }),
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[id].css"
+    })
+  ],
   module: {
     rules: [
       {
         test: /\.(js|jsx|mjs)$/,
-        loader: require.resolve('babel-loader'),
+        loader: require.resolve("babel-loader"),
         options: {
-          presets: [require.resolve('babel-preset-react-app')],
+          plugins: ["syntax-dynamic-import"]
         }
       },
-    ],
-  },
-}
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader"
+        ]
+      }
+    ]
+  }
+};
